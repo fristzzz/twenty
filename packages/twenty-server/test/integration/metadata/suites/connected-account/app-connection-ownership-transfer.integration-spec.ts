@@ -220,12 +220,15 @@ describe('app connection ownership transfer', () => {
     );
   }, 120000);
 
-  it('archives and clears only the departing member accounts', async () => {
+  it('archives before transferring a personal identity already used by the custodian', async () => {
     const departingAccount = await createAccount({
       userWorkspaceId: DEPARTING_MEMBER_ID,
     });
     const custodianAccount = await createAccount({
       userWorkspaceId: CUSTODIAN_MEMBER_ID,
+    });
+    await accounts().update([departingAccount.id, custodianAccount.id], {
+      externalAccountId: 'team:upstream-user',
     });
     const channel = await createChannel(departingAccount.id);
 
@@ -236,6 +239,7 @@ describe('app connection ownership transfer', () => {
     ).toMatchObject({
       userWorkspaceId: CUSTODIAN_MEMBER_ID,
       archivedAt: expect.anything(),
+      externalAccountId: 'team:upstream-user',
       accessToken: null,
       refreshToken: null,
     });

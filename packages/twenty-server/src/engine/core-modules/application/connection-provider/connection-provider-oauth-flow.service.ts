@@ -7,6 +7,7 @@ import { isDefined } from 'twenty-shared/utils';
 
 import { AppConnectionAccessService } from 'src/engine/core-modules/application/connection-provider/app-connection-access.service';
 import { ConnectionProviderAccountService } from 'src/engine/core-modules/application/connection-provider/connection-provider-account.service';
+import { ConnectionProviderIdentityService } from 'src/engine/core-modules/application/connection-provider/connection-provider-identity.service';
 import { ConnectionProviderExceptionCode } from 'src/engine/core-modules/application/connection-provider/connection-provider-exception-code.enum';
 import { ConnectionProviderLifecycleHookService } from 'src/engine/core-modules/application/connection-provider/connection-provider-lifecycle-hook.service';
 import { type ConnectionProviderEntity } from 'src/engine/core-modules/application/connection-provider/connection-provider.entity';
@@ -44,6 +45,7 @@ type CallbackArgs = {
 };
 
 type CallbackResult = {
+  isAlreadyConnected: boolean;
   connectedAccountId: string;
   workspaceId: string;
   applicationId: string;
@@ -59,6 +61,7 @@ export class ConnectionProviderOAuthFlowService {
     private readonly jwtWrapperService: JwtWrapperService,
     private readonly secureHttpClientService: SecureHttpClientService,
     private readonly twentyConfigService: TwentyConfigService,
+    private readonly connectionProviderIdentityService: ConnectionProviderIdentityService,
     private readonly connectionProviderAccountService: ConnectionProviderAccountService,
     private readonly connectionProviderLifecycleHookService: ConnectionProviderLifecycleHookService,
     private readonly appConnectionAccessService: AppConnectionAccessService,
@@ -178,25 +181,42 @@ export class ConnectionProviderOAuthFlowService {
       );
     }
 
-    const handle = await this.resolveConnectedAccountHandle({
-      tokenResponse,
-      userId: statePayload.userId,
-    });
+    await this.appConnectionAccessService.validateConnectionAccessOrThrow(
+      connectionAccessArgs,
+    );
 
-    const { connectedAccount } =
+    const identity =
+      await this.connectionProviderIdentityService.identifyAccount({
+        provider,
+        workspaceId: statePayload.workspaceId,
+        accessToken: tokenResponse.accessToken,
+        scopes: tokenResponse.scopes ?? provider.oauthConfig.scopes,
+      });
+    const handle =
+      identity?.handle ??
+      (await this.resolveConnectedAccountHandle({
+        tokenResponse,
+        userId: statePayload.userId,
+      }));
+
+    const { connectedAccount, isAlreadyConnected } =
       await this.connectionProviderAccountService.saveConnection({
         ...connectionAccessArgs,
+        identity,
         handle,
         tokenResponse,
       });
 
-    await this.connectionProviderLifecycleHookService.dispatchOnConnect({
-      provider,
-      workspaceId: statePayload.workspaceId,
-      connectedAccountId: connectedAccount.id,
-    });
+    if (!isAlreadyConnected) {
+      await this.connectionProviderLifecycleHookService.dispatchOnConnect({
+        provider,
+        workspaceId: statePayload.workspaceId,
+        connectedAccountId: connectedAccount.id,
+      });
+    }
 
     return {
+      isAlreadyConnected,
       connectedAccountId: connectedAccount.id,
       workspaceId: statePayload.workspaceId,
       applicationId: provider.applicationId,

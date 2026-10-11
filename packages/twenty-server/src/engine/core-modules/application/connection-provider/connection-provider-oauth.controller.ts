@@ -180,11 +180,16 @@ export class ConnectionProviderOAuthController {
         );
       }
 
-      const { workspaceId, applicationId, redirectLocation } =
-        await this.oauthProviderFlowService.completeAuthorizationFlow({
-          code,
-          state,
-        });
+      const {
+        workspaceId,
+        applicationId,
+        connectedAccountId,
+        redirectLocation,
+        isAlreadyConnected,
+      } = await this.oauthProviderFlowService.completeAuthorizationFlow({
+        code,
+        state,
+      });
 
       workspace = await this.workspaceRepository.findOneBy({
         id: workspaceId,
@@ -199,7 +204,14 @@ export class ConnectionProviderOAuthController {
 
       const { pathname, searchParams, hash } = parseRelativeUrl(
         redirectLocation ||
-          getSettingsPath(SettingsPath.ApplicationDetail, { applicationId }),
+          (isAlreadyConnected
+            ? getSettingsPath(SettingsPath.ApplicationConnectionDetail, {
+                applicationId,
+                connectedAccountId,
+              })
+            : getSettingsPath(SettingsPath.ApplicationDetail, {
+                applicationId,
+              })),
       );
 
       const url = this.workspaceDomainsService.buildWorkspaceURL({
@@ -210,8 +222,14 @@ export class ConnectionProviderOAuthController {
       });
 
       // Frontend tab list reads the URL hash to pick the active tab.
-      if (!redirectLocation) {
+      if (!redirectLocation && !isAlreadyConnected) {
         url.hash = 'settings';
+      }
+
+      if (isAlreadyConnected) {
+        url.searchParams.set('appConnectionAlreadyConnected', 'true');
+      } else {
+        url.searchParams.delete('appConnectionAlreadyConnected');
       }
 
       return res.redirect(url.toString());

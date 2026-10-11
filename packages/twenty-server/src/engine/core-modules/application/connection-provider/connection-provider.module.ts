@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AppConnectionAccessService } from 'src/engine/core-modules/application/connection-provider/app-connection-access.service';
 import { ConnectionProviderAccountService } from 'src/engine/core-modules/application/connection-provider/connection-provider-account.service';
+import { ConnectionProviderIdentityService } from 'src/engine/core-modules/application/connection-provider/connection-provider-identity.service';
 import { ApplicationConnectionProviderResolver } from 'src/engine/core-modules/application/connection-provider/application-connection-provider.resolver';
 import { ConnectionProviderEntity } from 'src/engine/core-modules/application/connection-provider/connection-provider.entity';
 import { ConnectionProviderLifecycleHookService } from 'src/engine/core-modules/application/connection-provider/connection-provider-lifecycle-hook.service';
@@ -48,6 +49,7 @@ import { ApplicationRegistrationLookupModule } from 'src/engine/core-modules/app
     provideWorkspaceScopedRepository(ConnectionProviderEntity),
     AppConnectionAccessService,
     ConnectionProviderAccountService,
+    ConnectionProviderIdentityService,
     ConnectionProviderService,
     ConnectionProviderOAuthFlowService,
     ConnectionProviderLifecycleHookService,

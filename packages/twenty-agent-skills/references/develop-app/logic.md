@@ -100,6 +100,10 @@ For third-party connections:
 - Document required OAuth or API setup in the app README or listing.
 - Verify failure states for expired or missing credentials.
 
+For account deduplication, declare `identifyAccountLogicFunction` and return a stable `externalAccountId` from the provider's authenticated account lookup. Include the external organization identifier when account IDs are only unique within that organization. Do not derive identity from an email address or token contents. This is trusted app logic running with ordinary app permissions, not a restricted identity sandbox or independent verification by Twenty. Keep it to account lookup and never log credentials.
+
+Duplicate Add returns the existing active record within the same workspace, provider, and visibility; personal records also belong to one member. It leaves saved credentials, owner, name, status, and workflows untouched and does not run `onConnect`. Only explicit Reconnect updates an existing connection's credentials, after checking the same identity. Do not revoke unused credentials from duplicate authorization: a provider can treat them as the existing grant. See the [connection provider guide](https://docs.twenty.com/developers/extend/apps/logic/connections) for hook inputs, lifecycle behavior, and legacy connection limits.
+
 ## Post-Install Hooks
 
 Use `definePostInstallLogicFunction` for records that must exist on install — default workflows, views, roles, or seeded reference data. Do not implement this as runtime first-run code.

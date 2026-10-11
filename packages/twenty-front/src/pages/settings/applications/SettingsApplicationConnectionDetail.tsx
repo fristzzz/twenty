@@ -328,14 +328,12 @@ export const SettingsApplicationConnectionDetail = () => {
                 description={t`Manage this application's OAuth connection.`}
               />
               <StyledActions>
-                {connection.authFailedAt && (
-                  <Button
-                    startIcon={<IconRefresh />}
-                    onClick={handleReconnect}
-                    variant="outline"
-                    color="accent"
-                  >{t`Reconnect`}</Button>
-                )}
+                <Button
+                  startIcon={<IconRefresh />}
+                  onClick={handleReconnect}
+                  variant="outline"
+                  color="accent"
+                >{t`Reconnect`}</Button>
                 {connection.visibility !== 'workspace' && (
                   <Button
                     startIcon={<IconUsers />}

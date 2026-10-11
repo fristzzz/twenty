@@ -44,7 +44,10 @@ export class AppConnectionAccessService {
     reconnectingConnectedAccountId,
     entityManager = this.connectedAccountRepository.manager,
   }: {
-    provider: Pick<ConnectionProviderEntity, 'id' | 'applicationId'>;
+    provider: Pick<
+      ConnectionProviderEntity,
+      'id' | 'applicationId' | 'identifyAccountLogicFunctionUniversalIdentifier'
+    >;
     workspaceId: string;
     userId: string;
     userWorkspaceId: string;
@@ -67,7 +70,11 @@ export class AppConnectionAccessService {
         lock: isTransactionActive ? { mode: 'pessimistic_write' } : undefined,
       });
 
-    if (!isDefined(currentProvider)) {
+    if (
+      !isDefined(currentProvider) ||
+      currentProvider.identifyAccountLogicFunctionUniversalIdentifier !==
+        provider.identifyAccountLogicFunctionUniversalIdentifier
+    ) {
       throw new ConnectionProviderException(
         'The connection provider changed during authorization. Start again.',
         ConnectionProviderExceptionCode.INVALID_STATE,

@@ -28,7 +28,7 @@ export const useTriggerAppOAuth = () => {
       // Distinct from the OAuth `scopes` granted by the upstream provider.
       visibility: 'user' | 'workspace';
       // Set to update an existing connectedAccount row rather than creating
-      // a new one (the "Reconnect" action on a failed credential).
+      // a new one.
       reconnectingConnectedAccountId?: string;
       redirectLocation?: string;
     }) => {
