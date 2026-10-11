@@ -1,5 +1,6 @@
 import { useQuery } from '@apollo/client/react';
 
+import { useRefetchOnApplicationOperation } from '@/applications/hooks/useRefetchOnApplicationOperation';
 import { FIND_APPLICATION_CONNECTION_PROVIDERS } from '@/settings/applications/graphql/queries/findApplicationConnectionProviders';
 import { type FrontendApplicationConnectionProvider } from '~/pages/settings/applications/types/FrontendApplicationConnectionProvider';
 
@@ -15,10 +16,11 @@ export const useFindApplicationConnectionProviders = (
     {
       skip: !applicationId,
       variables: { applicationId: applicationId ?? '' },
-      // Provider list only changes on app install/update; cache is fine.
-      fetchPolicy: 'cache-first',
+      fetchPolicy: 'cache-and-network',
     },
   );
+
+  useRefetchOnApplicationOperation({ applicationId, refetch });
 
   return {
     connectionProviders: data?.applicationConnectionProviders ?? [],

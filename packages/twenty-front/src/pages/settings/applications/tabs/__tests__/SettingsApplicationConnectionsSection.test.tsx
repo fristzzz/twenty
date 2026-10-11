@@ -54,6 +54,7 @@ describe('SettingsApplicationConnectionsSection', () => {
           type: 'oauth',
           name: 'google-calendar',
           displayName: 'Google Calendar',
+          allowedVisibilities: ['user', 'workspace'],
           logoUrl: null,
           oauth: {
             scopes: ['calendar.readonly'],
@@ -119,6 +120,7 @@ describe('SettingsApplicationConnectionsSection', () => {
           type: 'oauth',
           name: 'google-calendar',
           displayName: 'Google Calendar',
+          allowedVisibilities: ['user', 'workspace'],
           logoUrl: null,
           oauth: {
             scopes: ['calendar.readonly'],

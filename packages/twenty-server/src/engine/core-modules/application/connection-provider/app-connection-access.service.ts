@@ -2,18 +2,19 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { msg } from '@lingui/core/macro';
-import { ConnectedAccountProvider } from 'twenty-shared/types';
+import {
+  ConnectedAccountProvider,
+  type ConnectedAccountVisibility,
+} from 'twenty-shared/types';
 import { isDefined } from 'twenty-shared/utils';
 import { type EntityManager, Repository } from 'typeorm';
 
 import { ConnectionProviderExceptionCode } from 'src/engine/core-modules/application/connection-provider/connection-provider-exception-code.enum';
 import { ConnectionProviderEntity } from 'src/engine/core-modules/application/connection-provider/connection-provider.entity';
 import { ConnectionProviderException } from 'src/engine/core-modules/application/connection-provider/connection-provider.exception';
+import { assertConnectionProviderVisibilityAllowedOrThrow } from 'src/engine/core-modules/application/connection-provider/utils/assert-connection-provider-visibility-allowed-or-throw.util';
 import { UserWorkspaceEntity } from 'src/engine/core-modules/user-workspace/user-workspace.entity';
-import {
-  ConnectedAccountEntity,
-  type ConnectedAccountVisibility,
-} from 'src/engine/metadata-modules/connected-account/entities/connected-account.entity';
+import { ConnectedAccountEntity } from 'src/engine/metadata-modules/connected-account/entities/connected-account.entity';
 import { buildConnectedAccountUsableByCallerWhere } from 'src/engine/metadata-modules/connected-account/utils/build-connected-account-usable-by-caller-where.util';
 import { getConnectedAccountAdministrationPermissionFlag } from 'src/engine/metadata-modules/connected-account/utils/get-connected-account-administration-permission-flag.util';
 import {
@@ -128,6 +129,12 @@ export class AppConnectionAccessService {
         reconnectTarget?.visibility === 'workspace',
       workspaceId,
       userWorkspaceId,
+    });
+
+    assertConnectionProviderVisibilityAllowedOrThrow({
+      provider: currentProvider,
+      visibility,
+      reconnectTarget,
     });
 
     if (reconnectTarget?.visibility === 'workspace' && visibility === 'user') {

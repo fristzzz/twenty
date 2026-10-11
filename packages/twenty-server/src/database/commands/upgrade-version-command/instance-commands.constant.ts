@@ -240,6 +240,7 @@ import { AddPurchaseToBillingCreditGrantTypeFastInstanceCommand } from 'src/data
 import { RestoreUsageLimitMeterCompatibilityFastInstanceCommand } from 'src/database/commands/upgrade-version-command/2-46/2-46-instance-command-fast-1791538680877-restore-usage-limit-meter-compatibility';
 import { DropUsageLimitMeterFastInstanceCommand } from 'src/database/commands/upgrade-version-command/2-47/2-47-instance-command-fast-1791720497488-drop-usage-limit-meter';
 import { AddAppConnectionIdentityFastInstanceCommand } from 'src/database/commands/upgrade-version-command/2-47/2-47-instance-command-fast-1791738664525-add-app-connection-identity';
+import { AddConnectionProviderAllowedVisibilitiesFastInstanceCommand } from 'src/database/commands/upgrade-version-command/2-47/2-47-instance-command-fast-1791738702816-add-connection-provider-allowed-visibilities';
 
 export const INSTANCE_COMMANDS = [
   AddViewFieldGroupIdIndexOnViewFieldFastInstanceCommand,
@@ -482,4 +483,5 @@ export const INSTANCE_COMMANDS = [
   RestoreUsageLimitMeterCompatibilityFastInstanceCommand,
   DropUsageLimitMeterFastInstanceCommand,
   AddAppConnectionIdentityFastInstanceCommand,
+  AddConnectionProviderAllowedVisibilitiesFastInstanceCommand,
 ];

@@ -1,4 +1,5 @@
 import { graphql, HttpResponse } from 'msw';
+import { type ConnectedAccountVisibility } from 'twenty-shared/types';
 
 import {
   type ApplicationConnectedAccountsQuery,
@@ -10,7 +11,13 @@ export const APPLICATION_ID = '20202020-0000-4000-8000-000000000001';
 export const CONNECTED_ACCOUNT_ID = '20202020-0000-4000-8000-000000000002';
 const CONNECTION_PROVIDER_ID = '20202020-0000-4000-8000-000000000003';
 
-export const buildApplicationConnectionHandlers = () => [
+export const buildApplicationConnectionHandlers = ({
+  allowedVisibilities,
+  visibility = 'workspace',
+}: {
+  allowedVisibilities: ConnectedAccountVisibility[];
+  visibility?: ConnectedAccountVisibility;
+}) => [
   graphql.query<ApplicationConnectionProvidersQuery>(
     'ApplicationConnectionProviders',
     () =>
@@ -24,6 +31,7 @@ export const buildApplicationConnectionHandlers = () => [
               type: 'oauth',
               name: 'calendar',
               displayName: 'Calendar provider',
+              allowedVisibilities,
               logoUrl: null,
               oauth: {
                 scopes: ['calendar.readonly'],
@@ -46,7 +54,7 @@ export const buildApplicationConnectionHandlers = () => [
               connectionProviderId: CONNECTION_PROVIDER_ID,
               handle: 'calendar@example.com',
               name: 'Main calendar',
-              visibility: 'workspace',
+              visibility,
               scopes: ['calendar.readonly'],
               authFailedAt: null,
               authFailedReason: null,
